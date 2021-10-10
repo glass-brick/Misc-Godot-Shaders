@@ -1,0 +1,283 @@
+[gd_scene load_steps=29 format=2]
+
+[ext_resource path="res://Shaders/aura_B.gdshader" type="Shader" id=1]
+[ext_resource path="res://Normals/circuitry-detail-normal.png" type="Texture" id=2]
+[ext_resource path="res://IconTransparency.png" type="Texture" id=3]
+[ext_resource path="res://Shaders/wobblyEffect.shader" type="Shader" id=4]
+[ext_resource path="res://Shaders/blink.shader" type="Shader" id=5]
+[ext_resource path="res://Shaders/Contour.gdshader" type="Shader" id=6]
+[ext_resource path="res://Normals/45e1265ab27393903ca3faea493f5a54.jpg" type="Texture" id=7]
+[ext_resource path="res://Shaders/EnemyDeath.gdshader" type="Shader" id=8]
+[ext_resource path="res://Big_Player.png" type="Texture" id=9]
+[ext_resource path="res://Shaders/Blur.gdshader" type="Shader" id=10]
+[ext_resource path="res://Shaders/Blur_modifiable.gdshader" type="Shader" id=11]
+[ext_resource path="res://Shaders/Inflatable.gdshader" type="Shader" id=12]
+[ext_resource path="res://Shaders/Glow.gdshader" type="Shader" id=13]
+[ext_resource path="res://Shaders/Shadow.gdshader" type="Shader" id=14]
+[ext_resource path="res://Shaders/Desintagrate.gdshader" type="Shader" id=15]
+
+[sub_resource type="ShaderMaterial" id=1]
+shader = ExtResource( 4 )
+shader_param/strength = 0.1
+shader_param/speed = 4.0
+shader_param/frames = 5
+shader_param/flowMap = ExtResource( 2 )
+
+[sub_resource type="ShaderMaterial" id=4]
+shader = ExtResource( 5 )
+shader_param/modulate = Color( 0.65, 0.338, 0.5512, 1 )
+shader_param/active = true
+shader_param/time_scale = 4.0
+
+[sub_resource type="Shader" id=5]
+code = "shader_type canvas_item;
+render_mode blend_mix;
+
+uniform float radius = 5.0;
+uniform float speed = 5.0;
+uniform vec4 modulate: hint_color;
+
+void fragment() {
+	vec2 ps = TEXTURE_PIXEL_SIZE;
+
+	float radius_now = radius * abs(cos(TIME) * speed);
+	vec4 shadow = texture(TEXTURE, UV + vec2(-radius_now, -radius_now) * ps);
+
+	shadow += texture(TEXTURE, UV + vec2(-radius_now, 0.0) * ps);
+	shadow += texture(TEXTURE, UV + vec2(-radius_now, radius_now) * ps);
+	shadow += texture(TEXTURE, UV + vec2(0.0, -radius_now) * ps);
+	shadow += texture(TEXTURE, UV + vec2(0.0, radius_now) * ps);
+	shadow += texture(TEXTURE, UV + vec2(radius_now, -radius_now) * ps);
+	shadow += texture(TEXTURE, UV + vec2(radius_now, 0.0) * ps);
+	shadow += texture(TEXTURE, UV + vec2(radius_now, radius_now) * ps);
+	shadow /= 0.200;
+	shadow *= modulate;
+
+	vec4 col = texture(TEXTURE, UV);
+	COLOR = mix(shadow, col, col.a);
+}
+"
+
+[sub_resource type="ShaderMaterial" id=6]
+shader = SubResource( 5 )
+shader_param/radius = 5.0
+shader_param/speed = 4.0
+shader_param/modulate = Color( 1, 0, 0, 1 )
+
+[sub_resource type="ShaderMaterial" id=8]
+shader = ExtResource( 6 )
+shader_param/radius = 15.0
+shader_param/modulate = null
+
+[sub_resource type="ShaderMaterial" id=9]
+shader = ExtResource( 8 )
+shader_param/speed = 1.0
+shader_param/dissolve_texture = ExtResource( 7 )
+
+[sub_resource type="ShaderMaterial" id=11]
+shader = ExtResource( 1 )
+shader_param/aura_width = 20.0
+shader_param/speed = 4.0
+shader_param/aura_color = Color( 0.47451, 0, 0.0980392, 1 )
+
+[sub_resource type="ShaderMaterial" id=13]
+shader = ExtResource( 10 )
+shader_param/max_radius = 40.0
+
+[sub_resource type="ShaderMaterial" id=15]
+shader = ExtResource( 11 )
+shader_param/max_radius = 40.0
+shader_param/x_speed = 1.0
+shader_param/x_offset = 0.0
+shader_param/y_speed = 4.0
+shader_param/y_offset = 1.0
+
+[sub_resource type="ShaderMaterial" id=17]
+shader = ExtResource( 12 )
+shader_param/fattyness = 2.0
+
+[sub_resource type="ShaderMaterial" id=19]
+shader = ExtResource( 14 )
+shader_param/offset = Vector2( 80, 80 )
+shader_param/modulate = Color( 0.835294, 0, 0, 0.741176 )
+
+[sub_resource type="ShaderMaterial" id=23]
+shader = ExtResource( 15 )
+shader_param/max_amount = 40.0
+shader_param/speed = 0.2
+
+[sub_resource type="ShaderMaterial" id=21]
+shader = ExtResource( 13 )
+shader_param/max_radius = 8.0
+shader_param/max_amount = 2.0
+shader_param/radius_speed = 0.0
+shader_param/amount_speed = 0.2
+
+[node name="Demo" type="Node2D"]
+
+[node name="WobblyShader" type="Node2D" parent="."]
+material = SubResource( 1 )
+
+[node name="Sprite" type="Sprite" parent="WobblyShader"]
+use_parent_material = true
+position = Vector2( 514.554, 517.918 )
+texture = ExtResource( 3 )
+
+[node name="Sprite2" type="Sprite" parent="WobblyShader"]
+use_parent_material = true
+position = Vector2( 1479, 518.363 )
+texture = ExtResource( 9 )
+
+[node name="Blink" type="Node2D" parent="."]
+material = SubResource( 4 )
+position = Vector2( 0, 1024 )
+
+[node name="Sprite" type="Sprite" parent="Blink"]
+use_parent_material = true
+position = Vector2( 514.554, 517.918 )
+texture = ExtResource( 3 )
+
+[node name="Sprite2" type="Sprite" parent="Blink"]
+use_parent_material = true
+position = Vector2( 1479, 518.363 )
+texture = ExtResource( 9 )
+
+[node name="Aura" type="Node2D" parent="."]
+material = SubResource( 6 )
+position = Vector2( 0, 2048 )
+
+[node name="Sprite" type="Sprite" parent="Aura"]
+use_parent_material = true
+position = Vector2( 514.554, 517.918 )
+texture = ExtResource( 3 )
+
+[node name="Sprite3" type="Sprite" parent="Aura"]
+use_parent_material = true
+position = Vector2( 1479, 518.363 )
+texture = ExtResource( 9 )
+
+[node name="Contour" type="Node2D" parent="."]
+material = SubResource( 8 )
+position = Vector2( 2048, 0 )
+
+[node name="Sprite" type="Sprite" parent="Contour"]
+use_parent_material = true
+position = Vector2( 514.554, 517.918 )
+texture = ExtResource( 3 )
+
+[node name="Sprite3" type="Sprite" parent="Contour"]
+use_parent_material = true
+position = Vector2( 1479, 518.363 )
+texture = ExtResource( 9 )
+
+[node name="Fading" type="Node2D" parent="."]
+material = SubResource( 9 )
+position = Vector2( 2048, 1024 )
+
+[node name="Sprite" type="Sprite" parent="Fading"]
+use_parent_material = true
+position = Vector2( 514.554, 517.918 )
+texture = ExtResource( 3 )
+
+[node name="Sprite3" type="Sprite" parent="Fading"]
+use_parent_material = true
+position = Vector2( 1479, 518.363 )
+texture = ExtResource( 9 )
+
+[node name="AuraB" type="Node2D" parent="."]
+material = SubResource( 11 )
+position = Vector2( 2048, 2048 )
+
+[node name="Sprite" type="Sprite" parent="AuraB"]
+use_parent_material = true
+position = Vector2( 514.554, 517.918 )
+texture = ExtResource( 3 )
+
+[node name="Sprite3" type="Sprite" parent="AuraB"]
+use_parent_material = true
+position = Vector2( 1536, 512 )
+texture = ExtResource( 9 )
+
+[node name="Blur" type="Node2D" parent="."]
+material = SubResource( 13 )
+position = Vector2( 4096, 0 )
+
+[node name="Sprite" type="Sprite" parent="Blur"]
+use_parent_material = true
+position = Vector2( 514.554, 517.918 )
+texture = ExtResource( 3 )
+
+[node name="Sprite3" type="Sprite" parent="Blur"]
+use_parent_material = true
+position = Vector2( 1536, 512 )
+texture = ExtResource( 9 )
+
+[node name="Blur_x_y" type="Node2D" parent="."]
+material = SubResource( 15 )
+position = Vector2( 4096, 1024 )
+
+[node name="Sprite" type="Sprite" parent="Blur_x_y"]
+use_parent_material = true
+position = Vector2( 514.554, 517.918 )
+texture = ExtResource( 3 )
+
+[node name="Sprite3" type="Sprite" parent="Blur_x_y"]
+use_parent_material = true
+position = Vector2( 1536, 512 )
+texture = ExtResource( 9 )
+
+[node name="Inflatable" type="Node2D" parent="."]
+material = SubResource( 17 )
+position = Vector2( 4096, 2048 )
+
+[node name="Sprite" type="Sprite" parent="Inflatable"]
+use_parent_material = true
+position = Vector2( 514.554, 517.918 )
+texture = ExtResource( 3 )
+
+[node name="Sprite3" type="Sprite" parent="Inflatable"]
+use_parent_material = true
+position = Vector2( 1536, 512 )
+texture = ExtResource( 9 )
+
+[node name="Shadow" type="Node2D" parent="."]
+material = SubResource( 19 )
+position = Vector2( 0, 3072 )
+
+[node name="Sprite" type="Sprite" parent="Shadow"]
+use_parent_material = true
+position = Vector2( 514.554, 517.918 )
+texture = ExtResource( 3 )
+
+[node name="Sprite3" type="Sprite" parent="Shadow"]
+use_parent_material = true
+position = Vector2( 1536, 512 )
+texture = ExtResource( 9 )
+
+[node name="Inflatable2" type="Node2D" parent="."]
+material = SubResource( 23 )
+position = Vector2( 4096, 3072 )
+
+[node name="Sprite" type="Sprite" parent="Inflatable2"]
+use_parent_material = true
+position = Vector2( 514.554, 517.918 )
+texture = ExtResource( 3 )
+
+[node name="Sprite3" type="Sprite" parent="Inflatable2"]
+use_parent_material = true
+position = Vector2( 1536, 512 )
+texture = ExtResource( 9 )
+
+[node name="Glow" type="Node2D" parent="."]
+material = SubResource( 21 )
+position = Vector2( 2048, 3072 )
+
+[node name="Sprite" type="Sprite" parent="Glow"]
+use_parent_material = true
+position = Vector2( 514.554, 517.918 )
+texture = ExtResource( 3 )
+
+[node name="Sprite3" type="Sprite" parent="Glow"]
+use_parent_material = true
+position = Vector2( 1536, 512 )
+texture = ExtResource( 9 )
